@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Que',
       theme: theme(),
-      // home: SplashScreen(),
+      // home: Home(),
       initialRoute: SplashScreen.routeName,
       routes: routes,
     );

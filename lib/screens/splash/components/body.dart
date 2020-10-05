@@ -1,9 +1,12 @@
 import 'package:Que/components/default_button.dart';
-import 'package:Que/design/size_config.dart';
-import 'package:Que/design/uiconstants.dart';
+import 'package:Que/refer/size_config.dart';
+import 'package:Que/refer/uiconstants.dart';
+import 'package:Que/screens/home/home_screen.dart';
 import 'package:Que/screens/sign_in/sign_in_screen.dart';
 import 'package:Que/screens/splash/components/splash_content.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class Body extends StatefulWidget {
   @override
@@ -31,6 +34,7 @@ class _BodyState extends State<Body> {
       'image': 'assets/images/splash_3.png'
     },
   ];
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -38,6 +42,14 @@ class _BodyState extends State<Body> {
         width: double.infinity,
         child: Column(
           children: <Widget>[
+            SizedBox(height: getProportionateScreenHeight(30)),
+            Text(
+              "Que",
+              style: TextStyle(
+                  fontSize: getProportionateScreenWidth(36),
+                  color: kPrimaryColor,
+                  fontWeight: FontWeight.bold),
+            ),
             Expanded(
               flex: 3,
               child: PageView.builder(
@@ -71,9 +83,25 @@ class _BodyState extends State<Body> {
                       DefaultButton(
                         text: "Continue",
                         press: () {
-                          Navigator.pushNamed(context, SignInScreen.routeName);
+                          FirebaseAuth.instance
+                              .authStateChanges()
+                              .listen((User user) {
+                            if (user == null) {
+                              print('User is currently signed out!');
+                              Navigator.pushNamed(
+                                  context, SignInScreen.routeName);
+                            } else {
+                              print('User is signed in!');
+                              Navigator.pushNamed(
+                                  context, HomeScreen.routeName);
+                            }
+                          });
                         },
                       ),
+                      RaisedButton(onPressed: () async {
+                        await FirebaseAuth.instance.signOut();
+                        await GoogleSignIn().signOut();
+                      }),
                       Spacer(),
                     ],
                   ),

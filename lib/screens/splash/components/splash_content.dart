@@ -1,5 +1,4 @@
-import 'package:Que/design/size_config.dart';
-import 'package:Que/design/uiconstants.dart';
+import 'package:Que/refer/size_config.dart';
 import 'package:flutter/material.dart';
 
 class SplashContent extends StatelessWidget {
@@ -14,16 +13,6 @@ class SplashContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        Spacer(
-          flex: 2,
-        ),
-        Text(
-          "Que",
-          style: TextStyle(
-              fontSize: getProportionateScreenWidth(36),
-              color: kPrimaryColor,
-              fontWeight: FontWeight.bold),
-        ),
         Spacer(),
         Text(
           text,

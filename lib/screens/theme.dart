@@ -1,4 +1,4 @@
-import 'package:Que/design/uiconstants.dart';
+import 'package:Que/refer/uiconstants.dart';
 import 'package:flutter/material.dart';
 
 ThemeData theme() {

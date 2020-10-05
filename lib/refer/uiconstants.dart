@@ -1,4 +1,4 @@
-import 'package:Que/design/size_config.dart';
+import 'package:Que/refer/size_config.dart';
 import 'package:flutter/material.dart';
 
 const kPrimaryColor = Color(0xFFFF7643);
@@ -30,7 +30,10 @@ const String kNamelNullError = "Please Enter your name";
 const String kPhoneNumberNullError = "Please Enter your phone number";
 const String kAddressNullError = "Please Enter your address";
 const String userexist = "No user found for this email.";
-
+const String wrongpass = "Wrong password provided for that user.";
+const String kconfpass = "Please re-enter your password";
+const String kconfpassMatchError = "Confirm Password Doesn't Match";
+const String kaccountExistError = 'The account already exists for that email.';
 final otpInputDecoration = InputDecoration(
   contentPadding:
       EdgeInsets.symmetric(vertical: getProportionateScreenWidth(15)),

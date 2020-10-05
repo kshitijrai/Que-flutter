@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:Que/components/default_button.dart';
 import 'package:Que/components/form_error.dart';
-import 'package:Que/design/size_config.dart';
-import 'package:Que/design/uiconstants.dart';
+import 'package:Que/refer/size_config.dart';
+import 'package:Que/refer/uiconstants.dart';
+import 'package:Que/screens/forgot_password/forgot_pass_screen.dart';
+import 'package:Que/screens/login_success/login_success_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +22,21 @@ class _SignFormState extends State<SignForm> {
   String email;
   String password;
   final List<String> errors = [];
+
+  void addError({String error}) {
+    if (!errors.contains(error))
+      setState(() {
+        errors.add(error);
+      });
+  }
+
+  void removeError({String error}) {
+    if (errors.contains(error))
+      setState(() {
+        errors.remove(error);
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -32,9 +51,13 @@ class _SignFormState extends State<SignForm> {
             Row(
               children: [
                 Spacer(),
-                Text(
-                  'Forgot Password?',
-                  style: TextStyle(decoration: TextDecoration.underline),
+                GestureDetector(
+                  onTap: () => Navigator.pushNamed(
+                      context, ForgotPasswordScreen.routeName),
+                  child: Text(
+                    'Forgot Password?',
+                    style: TextStyle(decoration: TextDecoration.underline),
+                  ),
                 ),
               ],
             ),
@@ -44,9 +67,10 @@ class _SignFormState extends State<SignForm> {
             DefaultButton(
               text: 'Sign In',
               press: () async {
-                await signIn(_emailController.text, _passwordController.text);
                 if (_formKey.currentState.validate()) {
+                  await signIn();
                   _formKey.currentState.save();
+                  Navigator.pushNamed(context, LoginSuccessScreen.routeName);
                 }
               },
             )
@@ -60,28 +84,21 @@ class _SignFormState extends State<SignForm> {
     return TextFormField(
       controller: _passwordController,
       obscureText: true,
-      onSaved: (String newValue) => password = newValue,
-      onChanged: (String value) {
-        if (value.isNotEmpty && errors.contains(kPassNullError)) {
+      onSaved: (newValue) => password = newValue,
+      validator: (value) {
+        if (value.isEmpty) {
           setState(() {
-            errors.remove(kPassNullError);
+            addError(error: kPassNullError);
+            Timer(Duration(seconds: 5), () {
+              removeError(error: kPassNullError);
+            });
           });
-        } else if (value.length >= 8 ||
-            value.length == 0 && errors.contains(kShortPassError)) {
+        } else if (value.length < 8) {
           setState(() {
-            errors.remove(kShortPassError);
-          });
-        }
-        return null;
-      },
-      validator: (String value) {
-        if (value.isEmpty && !errors.contains(kPassNullError)) {
-          setState(() {
-            errors.add(kPassNullError);
-          });
-        } else if (value.length < 8 && !errors.contains(kShortPassError)) {
-          setState(() {
-            errors.add(kShortPassError);
+            addError(error: kShortPassError);
+            Timer(Duration(seconds: 5), () {
+              removeError(error: kShortPassError);
+            });
           });
         }
         return null;
@@ -99,29 +116,20 @@ class _SignFormState extends State<SignForm> {
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
-      onSaved: (String newValue) => email = newValue,
-      onChanged: (String value) {
-        if (value.isNotEmpty && errors.contains(kEmailNullError)) {
+      onSaved: (newValue) => email = newValue,
+      validator: (value) {
+        if (value.isEmpty) {
           setState(() {
-            errors.remove(kEmailNullError);
-          });
-        } else if (emailValidatorRegExp.hasMatch(value) &&
-            errors.contains(kInvalidEmailError)) {
-          setState(() {
-            errors.remove(kInvalidEmailError);
-          });
-        }
-        return null;
-      },
-      validator: (String value) {
-        if (value.isEmpty && !errors.contains(kEmailNullError)) {
-          setState(() {
-            errors.add(kEmailNullError);
+            addError(error: kEmailNullError);
+            Timer(Duration(seconds: 3), () {
+              removeError(error: kEmailNullError);
+            });
           });
         } else if (!emailValidatorRegExp.hasMatch(value) &&
             !errors.contains(kInvalidEmailError)) {
-          setState(() {
-            errors.add(kInvalidEmailError);
+          addError(error: kInvalidEmailError);
+          Timer(Duration(seconds: 3), () {
+            removeError(error: kInvalidEmailError);
           });
         }
         return null;
@@ -135,42 +143,29 @@ class _SignFormState extends State<SignForm> {
     );
   }
 
-  signIn(String email, String password) async {
+  signIn() async {
     await Firebase.initializeApp();
+    FirebaseAuth _auth = FirebaseAuth.instance;
+
     try {
-      await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
+      await _auth.signInWithEmailAndPassword(
+          email: _emailController.text, password: _passwordController.text);
       print("Signed in");
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         print(userexist);
-        showError(userexist);
+
+        setState(() {
+          addError(error: userexist);
+        });
       } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+        print(wrongpass);
+        setState(() {
+          addError(error: wrongpass);
+        });
       }
     } catch (e) {
       print(e.toString());
     }
-  }
-
-  showError(String errormessage) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('SignIn - Error'),
-            content: Text(
-              errormessage,
-              style: TextStyle(color: Colors.red),
-            ),
-            actions: <Widget>[
-              RaisedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'))
-            ],
-          );
-        });
   }
 }

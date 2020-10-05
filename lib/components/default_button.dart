@@ -1,5 +1,5 @@
-import 'package:Que/design/size_config.dart';
-import 'package:Que/design/uiconstants.dart';
+import 'package:Que/refer/size_config.dart';
+import 'package:Que/refer/uiconstants.dart';
 import 'package:flutter/material.dart';
 
 class DefaultButton extends StatelessWidget {

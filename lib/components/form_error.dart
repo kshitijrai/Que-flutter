@@ -1,4 +1,4 @@
-import 'package:Que/design/size_config.dart';
+import 'package:Que/refer/size_config.dart';
 import 'package:flutter/material.dart';
 
 class FormError extends StatelessWidget {

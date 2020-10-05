@@ -1,7 +1,12 @@
+import 'package:Que/components/no_account.dart';
 import 'package:Que/components/social_card.dart';
-import 'package:Que/design/size_config.dart';
+import 'package:Que/refer/size_config.dart';
+import 'package:Que/refer/uiconstants.dart';
 import 'package:Que/screens/sign_in/components/signin_form.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class Body extends StatelessWidget {
   @override
@@ -19,11 +24,7 @@ class Body extends StatelessWidget {
               ),
               Text(
                 "Welcome Back",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: getProportionateScreenWidth(28),
-                  fontWeight: FontWeight.bold,
-                ),
+                style: headingStyle,
               ),
               Text(
                 'Sign in with your email and password \nor continue with social media',
@@ -41,7 +42,9 @@ class Body extends StatelessWidget {
                 children: [
                   SocialCard(
                     icon: 'assets/icons/google-icon.svg',
-                    press: () {},
+                    press: () {
+                      signInWithGoogle();
+                    },
                   ),
                   SocialCard(
                     icon: 'assets/icons/facebook.svg',
@@ -52,26 +55,35 @@ class Body extends StatelessWidget {
               SizedBox(
                 height: getProportionateScreenHeight(20),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Don\'t have an account? ',
-                    style: TextStyle(fontSize: getProportionateScreenWidth(16)),
-                  ),
-                  Text(
-                    'Sign Up',
-                    style: TextStyle(
-                        fontSize: getProportionateScreenWidth(16),
-                        color: Colors.blue,
-                        decoration: TextDecoration.underline),
-                  ),
-                ],
+              NoAccount(),
+              SizedBox(
+                height: getProportionateScreenHeight(20),
               )
             ],
           ),
         ),
       ),
     );
+  }
+
+  signInWithGoogle() async {
+    await Firebase.initializeApp();
+    FirebaseAuth _auth = FirebaseAuth.instance;
+
+    // Trigger the authentication flow
+    final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+
+    // Obtain the auth details from the request
+    if (googleUser != null) {
+      final GoogleSignInAuthentication googleSignInAuth =
+          await googleUser.authentication;
+
+      GoogleAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleSignInAuth.accessToken,
+        idToken: googleSignInAuth.idToken,
+      );
+
+      return await _auth.signInWithCredential(credential);
+    }
   }
 }
