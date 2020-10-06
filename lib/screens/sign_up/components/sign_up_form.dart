@@ -4,6 +4,7 @@ import 'package:Que/components/default_button.dart';
 import 'package:Que/components/form_error.dart';
 import 'package:Que/refer/size_config.dart';
 import 'package:Que/refer/uiconstants.dart';
+import 'package:Que/screens/complete_profile/complete_profile_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -55,12 +56,13 @@ class _SignUpFormState extends State<SignUpForm> {
             DefaultButton(
               text: 'Sign Up',
               press: () async {
-                await signUp(
-                  _emailController.text,
-                  _passwordController.text,
-                );
                 if (_formKey.currentState.validate()) {
                   _formKey.currentState.save();
+                  await signUp(
+                    _emailController.text,
+                    _passwordController.text,
+                  );
+                  Navigator.pushNamed(context, CompleteProfileScreen.routeName);
                 }
               },
             )

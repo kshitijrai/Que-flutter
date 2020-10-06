@@ -68,9 +68,8 @@ class _SignFormState extends State<SignForm> {
               text: 'Sign In',
               press: () async {
                 if (_formKey.currentState.validate()) {
-                  await signIn();
                   _formKey.currentState.save();
-                  Navigator.pushNamed(context, LoginSuccessScreen.routeName);
+                  await signIn();
                 }
               },
             )
@@ -89,14 +88,14 @@ class _SignFormState extends State<SignForm> {
         if (value.isEmpty) {
           setState(() {
             addError(error: kPassNullError);
-            Timer(Duration(seconds: 5), () {
+            Timer(Duration(seconds: 3), () {
               removeError(error: kPassNullError);
             });
           });
         } else if (value.length < 8) {
           setState(() {
             addError(error: kShortPassError);
-            Timer(Duration(seconds: 5), () {
+            Timer(Duration(seconds: 3), () {
               removeError(error: kShortPassError);
             });
           });
@@ -125,8 +124,7 @@ class _SignFormState extends State<SignForm> {
               removeError(error: kEmailNullError);
             });
           });
-        } else if (!emailValidatorRegExp.hasMatch(value) &&
-            !errors.contains(kInvalidEmailError)) {
+        } else if (!emailValidatorRegExp.hasMatch(value)) {
           addError(error: kInvalidEmailError);
           Timer(Duration(seconds: 3), () {
             removeError(error: kInvalidEmailError);
@@ -150,18 +148,20 @@ class _SignFormState extends State<SignForm> {
     try {
       await _auth.signInWithEmailAndPassword(
           email: _emailController.text, password: _passwordController.text);
+      Navigator.pushNamed(context, LoginSuccessScreen.routeName);
       print("Signed in");
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         print(userexist);
-
-        setState(() {
-          addError(error: userexist);
+        addError(error: userexist);
+        Timer(Duration(seconds: 3), () {
+          removeError(error: userexist);
         });
       } else if (e.code == 'wrong-password') {
         print(wrongpass);
-        setState(() {
-          addError(error: wrongpass);
+        addError(error: wrongpass);
+        Timer(Duration(seconds: 3), () {
+          removeError(error: wrongpass);
         });
       }
     } catch (e) {
