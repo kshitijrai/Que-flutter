@@ -4,7 +4,7 @@ import 'package:Que/components/default_button.dart';
 import 'package:Que/components/form_error.dart';
 import 'package:Que/refer/size_config.dart';
 import 'package:Que/refer/uiconstants.dart';
-import 'package:Que/screens/complete_profile/complete_profile_screen.dart';
+import 'package:Que/screens/sign_up/complete_profile/complete_profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';

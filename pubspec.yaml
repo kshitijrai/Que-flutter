@@ -34,6 +34,7 @@ dependencies:
   firebase_auth: ^0.18.1+1
   google_sign_in: 
   cloud_firestore:
+  bubble_bottom_bar:
    
 
 dev_dependencies:

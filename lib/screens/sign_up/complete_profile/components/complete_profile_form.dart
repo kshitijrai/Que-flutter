@@ -46,8 +46,8 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
         print(user.uid);
         return users
             .update({
-              'first_name': firstName,
-              'last_name': lastName,
+              'full_name': firstName + ' ' + lastName,
+              'email': user.email,
             })
             .then((value) => {
                   print("User Name Added"),

@@ -1,7 +1,7 @@
-import 'package:Que/screens/complete_profile/complete_profile_screen.dart';
 import 'package:Que/screens/forgot_password/forgot_pass_screen.dart';
 import 'package:Que/screens/home/home_screen.dart';
 import 'package:Que/screens/sign_in/sign_in_screen.dart';
+import 'package:Que/screens/sign_up/complete_profile/complete_profile_screen.dart';
 import 'package:Que/screens/sign_up/sign_up_screen.dart';
 import 'package:Que/screens/splash/splash_screen.dart';
 
