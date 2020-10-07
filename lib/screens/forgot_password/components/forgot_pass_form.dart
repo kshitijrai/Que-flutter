@@ -67,8 +67,8 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
             press: () {
               if (_formKey.currentState.validate()) {
                 _formKey.currentState.save();
+                resetPassword(_emailController.text);
               }
-              resetPassword(_emailController.text);
             },
           ),
           SizedBox(height: getProportionateScreenHeight(20)),

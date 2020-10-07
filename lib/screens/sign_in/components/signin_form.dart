@@ -5,7 +5,6 @@ import 'package:Que/components/form_error.dart';
 import 'package:Que/refer/size_config.dart';
 import 'package:Que/refer/uiconstants.dart';
 import 'package:Que/screens/forgot_password/forgot_pass_screen.dart';
-import 'package:Que/screens/login_success/login_success_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +34,35 @@ class _SignFormState extends State<SignForm> {
       setState(() {
         errors.remove(error);
       });
+  }
+
+  signIn() async {
+    await Firebase.initializeApp();
+    FirebaseAuth _auth = FirebaseAuth.instance;
+
+    try {
+      await _auth.signInWithEmailAndPassword(
+          email: _emailController.text, password: _passwordController.text);
+      Navigator.pop(context);
+
+      print("Signed in");
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print(userexist);
+        addError(error: userexist);
+        Timer(Duration(seconds: 3), () {
+          removeError(error: userexist);
+        });
+      } else if (e.code == 'wrong-password') {
+        print(wrongpass);
+        addError(error: wrongpass);
+        Timer(Duration(seconds: 3), () {
+          removeError(error: wrongpass);
+        });
+      }
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   @override
@@ -139,33 +167,5 @@ class _SignFormState extends State<SignForm> {
         suffixIcon: Icon(Icons.mail_outline),
       ),
     );
-  }
-
-  signIn() async {
-    await Firebase.initializeApp();
-    FirebaseAuth _auth = FirebaseAuth.instance;
-
-    try {
-      await _auth.signInWithEmailAndPassword(
-          email: _emailController.text, password: _passwordController.text);
-      Navigator.pushNamed(context, LoginSuccessScreen.routeName);
-      print("Signed in");
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        print(userexist);
-        addError(error: userexist);
-        Timer(Duration(seconds: 3), () {
-          removeError(error: userexist);
-        });
-      } else if (e.code == 'wrong-password') {
-        print(wrongpass);
-        addError(error: wrongpass);
-        Timer(Duration(seconds: 3), () {
-          removeError(error: wrongpass);
-        });
-      }
-    } catch (e) {
-      print(e.toString());
-    }
   }
 }

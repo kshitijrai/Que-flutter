@@ -1,6 +1,6 @@
+import 'package:Que/refer/theme.dart';
 import 'package:Que/route.dart';
 import 'package:Que/screens/splash/splash_screen.dart';
-import 'package:Que/screens/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +17,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Que',
       theme: theme(),
-      // home: Home(),
+      // home: Home(
+      //   isAuth: false,
+      // ),
       initialRoute: SplashScreen.routeName,
       routes: routes,
     );

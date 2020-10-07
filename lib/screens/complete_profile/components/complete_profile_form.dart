@@ -4,8 +4,8 @@ import 'package:Que/components/default_button.dart';
 import 'package:Que/components/form_error.dart';
 import 'package:Que/refer/size_config.dart';
 import 'package:Que/refer/uiconstants.dart';
-import 'package:Que/screens/login_success/login_success_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class CompleteProfileForm extends StatefulWidget {
@@ -21,8 +21,6 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
   final List<String> errors = [];
   String firstName;
   String lastName;
-  String phoneNumber;
-  String address;
 
   void addError({String error}) {
     if (!errors.contains(error))
@@ -40,6 +38,28 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
 
   @override
   Widget build(BuildContext context) {
+    addUser(String firstName, String lastName) {
+      User user = FirebaseAuth.instance.currentUser;
+      DocumentReference users =
+          FirebaseFirestore.instance.collection('users').doc(user.email);
+      if (user != null) {
+        print(user.uid);
+        return users
+            .update({
+              'first_name': firstName,
+              'last_name': lastName,
+            })
+            .then((value) => {
+                  print("User Name Added"),
+                  Navigator.pop(context),
+                })
+            .catchError(
+              (error) => print("Failed to add user: $error"),
+            );
+      }
+      // Call the user's CollectionReference to add a new user
+    }
+
     return Form(
       key: _formKey,
       child: Column(
@@ -50,7 +70,7 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
           FormError(errors: errors),
           SizedBox(height: getProportionateScreenHeight(40)),
           DefaultButton(
-            text: 'Continue',
+            text: 'Finish',
             press: () async {
               if (_formKey.currentState.validate()) {
                 _formKey.currentState.save();
@@ -58,7 +78,6 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
                   _firstnamecontroller.text,
                   _lastnamecontroller.text,
                 );
-                Navigator.pushNamed(context, LoginSuccessScreen.routeName);
               }
             },
           ),
@@ -101,17 +120,4 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
       ),
     );
   }
-}
-
-addUser(String firstName, String lastName) {
-  CollectionReference users = FirebaseFirestore.instance.collection('users');
-
-  // Call the user's CollectionReference to add a new user
-  return users
-      .add({
-        'first_name': firstName, // John Doe
-        'last_name': lastName, // Stokes and Sons
-      })
-      .then((value) => print("User Added"))
-      .catchError((error) => print("Failed to add user: $error"));
 }

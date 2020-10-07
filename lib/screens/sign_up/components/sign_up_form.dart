@@ -5,6 +5,7 @@ import 'package:Que/components/form_error.dart';
 import 'package:Que/refer/size_config.dart';
 import 'package:Que/refer/uiconstants.dart';
 import 'package:Que/screens/complete_profile/complete_profile_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -62,7 +63,6 @@ class _SignUpFormState extends State<SignUpForm> {
                     _emailController.text,
                     _passwordController.text,
                   );
-                  Navigator.pushNamed(context, CompleteProfileScreen.routeName);
                 }
               },
             )
@@ -166,13 +166,30 @@ class _SignUpFormState extends State<SignUpForm> {
   signUp(String email, String password) async {
     await Firebase.initializeApp();
     FirebaseAuth _auth = FirebaseAuth.instance;
-    // User user = FirebaseAuth.instance.currentUser;
 
     try {
       if (password == conf_password) {
         await _auth.createUserWithEmailAndPassword(
             email: email, password: password);
         print("User sign up successful");
+        User user = FirebaseAuth.instance.currentUser;
+        DocumentReference users =
+            FirebaseFirestore.instance.collection('users').doc(user.email);
+        if (user != null) {
+          print(user.uid);
+          return users
+              .set({
+                'user_id': user.uid,
+              })
+              .then((value) => {
+                    print("User Added"),
+                    Navigator.popAndPushNamed(
+                        context, CompleteProfileScreen.routeName),
+                  })
+              .catchError(
+                (error) => print("Failed to add user: $error"),
+              );
+        }
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
