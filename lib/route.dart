@@ -1,10 +1,12 @@
+import 'package:Que/screens/Store/store_details/storedetails.dart';
 import 'package:Que/screens/forgot_password/forgot_pass_screen.dart';
 import 'package:Que/screens/home/home_screen.dart';
 import 'package:Que/screens/sign_in/sign_in_screen.dart';
 import 'package:Que/screens/sign_up/complete_profile/complete_profile_screen.dart';
 import 'package:Que/screens/sign_up/sign_up_screen.dart';
+import 'package:Que/screens/Store/store_signup/sign_up_screen.dart';
 import 'package:Que/screens/splash/splash_screen.dart';
-
+import 'package:Que/screens/Store/store_signin/store_signin.dart';
 import 'package:flutter/material.dart';
 
 // using name route
@@ -15,4 +17,7 @@ final Map<String, WidgetBuilder> routes = {
   SignUpScreen.routeName: (context) => SignUpScreen(),
   CompleteProfileScreen.routeName: (context) => CompleteProfileScreen(),
   HomeScreen.routeName: (context) => HomeScreen(),
+  StoreSignin.routeName: (context) => StoreSignin(),
+  StoreSignUpScreen.routeName: (context) => StoreSignUpScreen(),
+  StoreDetails.routeName: (context) => StoreDetails(),
 };

@@ -1,3 +1,4 @@
+import 'package:Que/components/manage_store.dart';
 import 'package:Que/components/no_account.dart';
 import 'package:Que/components/social_card.dart';
 import 'package:Que/refer/size_config.dart';
@@ -98,7 +99,8 @@ class Body extends StatelessWidget {
               NoAccount(),
               SizedBox(
                 height: getProportionateScreenHeight(20),
-              )
+              ),
+              ManageStore(),
             ],
           ),
         ),

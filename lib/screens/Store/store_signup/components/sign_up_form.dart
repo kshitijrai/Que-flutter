@@ -4,18 +4,17 @@ import 'package:Que/components/default_button.dart';
 import 'package:Que/components/form_error.dart';
 import 'package:Que/refer/size_config.dart';
 import 'package:Que/refer/uiconstants.dart';
-import 'package:Que/screens/sign_up/complete_profile/complete_profile_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:Que/screens/Store/store_details/storedetails.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-class SignUpForm extends StatefulWidget {
+class StoreSignUpForm extends StatefulWidget {
   @override
-  _SignUpFormState createState() => _SignUpFormState();
+  _StoreSignUpFormState createState() => _StoreSignUpFormState();
 }
 
-class _SignUpFormState extends State<SignUpForm> {
+class _StoreSignUpFormState extends State<StoreSignUpForm> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -55,7 +54,7 @@ class _SignUpFormState extends State<SignUpForm> {
             FormError(errors: errors),
             SizedBox(height: getProportionateScreenHeight(30)),
             DefaultButton(
-              text: 'Sign Up',
+              text: 'Store Sign Up',
               press: () async {
                 if (_formKey.currentState.validate()) {
                   _formKey.currentState.save();
@@ -171,26 +170,8 @@ class _SignUpFormState extends State<SignUpForm> {
       if (password == conf_password) {
         await _auth.createUserWithEmailAndPassword(
             email: email, password: password);
-        print("User sign up successful");
-        User user = FirebaseAuth.instance.currentUser;
-
-        DocumentReference users =
-            FirebaseFirestore.instance.collection('users').doc(user.email);
-        if (user != null) {
-          print(user.uid);
-          return users
-              .set({
-                'user_id': user.uid,
-              })
-              .then((value) => {
-                    print("User Added"),
-                    Navigator.popAndPushNamed(
-                        context, CompleteProfileScreen.routeName),
-                  })
-              .catchError(
-                (error) => print("Failed to add user: $error"),
-              );
-        }
+        Navigator.popAndPushNamed(context, StoreDetails.routeName);
+        print("Store sign up successful");
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {

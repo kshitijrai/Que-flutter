@@ -4,26 +4,24 @@ import 'package:Que/components/default_button.dart';
 import 'package:Que/components/form_error.dart';
 import 'package:Que/refer/size_config.dart';
 import 'package:Que/refer/uiconstants.dart';
-import 'package:Que/screens/sign_up/complete_profile/complete_profile_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:Que/screens/forgot_password/forgot_pass_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-class SignUpForm extends StatefulWidget {
+class StoreSigninForm extends StatefulWidget {
   @override
-  _SignUpFormState createState() => _SignUpFormState();
+  _StoreSigninFormState createState() => _StoreSigninFormState();
 }
 
-class _SignUpFormState extends State<SignUpForm> {
+class _StoreSigninFormState extends State<StoreSigninForm> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confpasswordController = TextEditingController();
   String email;
   String password;
-  // ignore: non_constant_identifier_names
-  String conf_password;
+  final List<String> errors = [];
+
   void addError({String error}) {
     if (!errors.contains(error))
       setState(() {
@@ -38,7 +36,35 @@ class _SignUpFormState extends State<SignUpForm> {
       });
   }
 
-  final List<String> errors = [];
+  signIn() async {
+    await Firebase.initializeApp();
+    FirebaseAuth _auth = FirebaseAuth.instance;
+
+    try {
+      await _auth.signInWithEmailAndPassword(
+          email: _emailController.text, password: _passwordController.text);
+      Navigator.pop(context);
+
+      print("Signed in");
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print(userexist);
+        addError(error: userexist);
+        Timer(Duration(seconds: 3), () {
+          removeError(error: userexist);
+        });
+      } else if (e.code == 'wrong-password') {
+        print(wrongpass);
+        addError(error: wrongpass);
+        Timer(Duration(seconds: 3), () {
+          removeError(error: wrongpass);
+        });
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -50,19 +76,28 @@ class _SignUpFormState extends State<SignUpForm> {
             SizedBox(height: getProportionateScreenHeight(20)),
             buildPasswordField(),
             SizedBox(height: getProportionateScreenHeight(20)),
-            buildConfPasswordField(),
+            Row(
+              children: [
+                Spacer(),
+                GestureDetector(
+                  onTap: () => Navigator.pushNamed(
+                      context, ForgotPasswordScreen.routeName),
+                  child: Text(
+                    'Forgot Password?',
+                    style: TextStyle(decoration: TextDecoration.underline),
+                  ),
+                ),
+              ],
+            ),
             SizedBox(height: getProportionateScreenHeight(30)),
             FormError(errors: errors),
             SizedBox(height: getProportionateScreenHeight(30)),
             DefaultButton(
-              text: 'Sign Up',
+              text: 'Sign In',
               press: () async {
                 if (_formKey.currentState.validate()) {
                   _formKey.currentState.save();
-                  await signUp(
-                    _emailController.text,
-                    _passwordController.text,
-                  );
+                  await signIn();
                 }
               },
             )
@@ -81,14 +116,14 @@ class _SignUpFormState extends State<SignUpForm> {
         if (value.isEmpty) {
           setState(() {
             addError(error: kPassNullError);
-            Timer(Duration(seconds: 5), () {
+            Timer(Duration(seconds: 3), () {
               removeError(error: kPassNullError);
             });
           });
         } else if (value.length < 8) {
           setState(() {
             addError(error: kShortPassError);
-            Timer(Duration(seconds: 5), () {
+            Timer(Duration(seconds: 3), () {
               removeError(error: kShortPassError);
             });
           });
@@ -99,34 +134,6 @@ class _SignUpFormState extends State<SignUpForm> {
         floatingLabelBehavior: FloatingLabelBehavior.always,
         labelText: 'Password',
         hintText: 'Enter you Password',
-        suffixIcon: Icon(Icons.lock),
-      ),
-    );
-  }
-
-  TextFormField buildConfPasswordField() {
-    return TextFormField(
-      controller: _confpasswordController,
-      obscureText: true,
-      onSaved: (newValue) => conf_password = newValue,
-      validator: (newValue) {
-        if (_passwordController.text != newValue) {
-          addError(error: kconfpassMatchError);
-          Timer(Duration(seconds: 5), () {
-            removeError(error: kconfpassMatchError);
-          });
-        } else if (newValue.isEmpty) {
-          addError(error: kconfpass);
-          Timer(Duration(seconds: 5), () {
-            removeError(error: kconfpass);
-          });
-        }
-        return null;
-      },
-      decoration: InputDecoration(
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        labelText: 'Confirm Password',
-        hintText: 'Re-enter you Password',
         suffixIcon: Icon(Icons.lock),
       ),
     );
@@ -145,8 +152,7 @@ class _SignUpFormState extends State<SignUpForm> {
               removeError(error: kEmailNullError);
             });
           });
-        } else if (!emailValidatorRegExp.hasMatch(value) &&
-            !errors.contains(kInvalidEmailError)) {
+        } else if (!emailValidatorRegExp.hasMatch(value)) {
           addError(error: kInvalidEmailError);
           Timer(Duration(seconds: 3), () {
             removeError(error: kInvalidEmailError);
@@ -161,50 +167,5 @@ class _SignUpFormState extends State<SignUpForm> {
         suffixIcon: Icon(Icons.mail_outline),
       ),
     );
-  }
-
-  signUp(String email, String password) async {
-    await Firebase.initializeApp();
-    FirebaseAuth _auth = FirebaseAuth.instance;
-
-    try {
-      if (password == conf_password) {
-        await _auth.createUserWithEmailAndPassword(
-            email: email, password: password);
-        print("User sign up successful");
-        User user = FirebaseAuth.instance.currentUser;
-
-        DocumentReference users =
-            FirebaseFirestore.instance.collection('users').doc(user.email);
-        if (user != null) {
-          print(user.uid);
-          return users
-              .set({
-                'user_id': user.uid,
-              })
-              .then((value) => {
-                    print("User Added"),
-                    Navigator.popAndPushNamed(
-                        context, CompleteProfileScreen.routeName),
-                  })
-              .catchError(
-                (error) => print("Failed to add user: $error"),
-              );
-        }
-      }
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'email-already-in-use') {
-        addError(error: kaccountExistError);
-        Timer(Duration(seconds: 5), () {
-          removeError(error: kaccountExistError);
-        });
-      }
-    } catch (e) {
-      print(e.toString());
-      addError(error: e.message);
-      Timer(Duration(seconds: 5), () {
-        removeError(error: e.message);
-      });
-    }
   }
 }
